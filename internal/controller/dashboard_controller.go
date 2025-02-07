@@ -252,10 +252,14 @@ func (a *DashboardControllerImpl) GetDriverDetails(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status": "Success",
 		"data": fiber.Map{
-			"id":    res.Id,
-			"name":  res.Name,
-			"email": res.Email,
-			"image": res.ImageUrl,
+			"id":             res.Id,
+			"name":           res.Name,
+			"email":          res.Email,
+			"phone_number":   res.PhoneNumber,
+			"license_number": res.LicenseNumber,
+			"SIM":            res.Sim,
+			"verified":       res.Verified,
+			"image_url":      res.ImageUrl,
 		},
 	})
 }
@@ -270,7 +274,13 @@ func (a *DashboardControllerImpl) GetDrivers(c *fiber.Ctx) error {
 		})
 	}
 
-	res, err := a.PBDriver.GetDrivers(c.Context(), &pb.ReqDrivers{Verified: q.Verified})
+	var req *pb.ReqDrivers
+
+	if q.Verified != nil {
+		req = &pb.ReqDrivers{Verified: *q.Verified}
+	}
+
+	res, err := a.PBDriver.GetDrivers(c.Context(), req)
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

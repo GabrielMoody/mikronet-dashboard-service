@@ -23,7 +23,7 @@ func DashboardHandler(r fiber.Router, db *gorm.DB, driver pb.DriverServiceClient
 
 	api.Get("/drivers", middleware.ValidateDashboardRole("admin", "owner", "government"), controllerDashboard.GetDrivers)
 	api.Get("/drivers/:id", middleware.ValidateDashboardRole("admin", "owner", "government"), controllerDashboard.GetDriverDetails)
-	api.Put("/drivers/verified/:id", middleware.ValidateDashboardRole("admin"), controllerDashboard.SetDriverStatusVerified)
+	api.Post("/drivers/verified/:id", middleware.ValidateDashboardRole("admin"), controllerDashboard.SetDriverStatusVerified)
 
 	api.Get("/owners", middleware.ValidateDashboardRole("admin", "owner", "government"), controllerDashboard.GetBusinessOwners)
 	api.Get("/owners/blocked", middleware.ValidateDashboardRole("admin", "government"), controllerDashboard.GetBlockedBusinessOwners)

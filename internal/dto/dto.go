@@ -2,6 +2,6 @@ package dto
 
 type (
 	GetDriverQuery struct {
-		Verified bool `query:"verified"`
+		Verified *bool `query:"verified"`
 	}
 )
