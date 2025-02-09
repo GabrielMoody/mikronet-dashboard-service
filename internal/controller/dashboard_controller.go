@@ -20,6 +20,8 @@ type DashboardController interface {
 	GetUserDetails(c *fiber.Ctx) error
 	GetDrivers(c *fiber.Ctx) error
 	GetDriverDetails(c *fiber.Ctx) error
+	DeleteUser(c *fiber.Ctx) error
+	DeleteDriver(c *fiber.Ctx) error
 	BlockAccount(c *fiber.Ctx) error
 	UnblockAccount(c *fiber.Ctx) error
 	GetReviews(c *fiber.Ctx) error
@@ -30,6 +32,48 @@ type DashboardControllerImpl struct {
 	DashboardService service.DashboardService
 	PBDriver         pb.DriverServiceClient
 	PBUser           pb.UserServiceClient
+}
+
+func (a *DashboardControllerImpl) DeleteUser(c *fiber.Ctx) error {
+	ctx := c.Context()
+	id := c.Params("id")
+
+	res, err := a.PBUser.DeleteUser(ctx, &pb.GetByIDRequest{
+		Id: id,
+	})
+
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status": "error",
+			"errors": err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status": "Success",
+		"data":   res,
+	})
+}
+
+func (a *DashboardControllerImpl) DeleteDriver(c *fiber.Ctx) error {
+	ctx := c.Context()
+	id := c.Params("id")
+
+	res, err := a.PBDriver.DeleteDriver(ctx, &pb.ReqByID{
+		Id: id,
+	})
+
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status": "error",
+			"errors": err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status": "Success",
+		"data":   res,
+	})
 }
 
 func (a *DashboardControllerImpl) SetDriverStatusVerified(c *fiber.Ctx) error {
@@ -276,8 +320,12 @@ func (a *DashboardControllerImpl) GetDrivers(c *fiber.Ctx) error {
 
 	var req *pb.ReqDrivers
 
-	if q.Verified != nil {
-		req = &pb.ReqDrivers{Verified: *q.Verified}
+	if q.Verified != nil && *q.Verified == true {
+		req = &pb.ReqDrivers{Verified: &pb.ReqDrivers_IsVerified{IsVerified: true}}
+	} else if q.Verified != nil && *q.Verified == false {
+		req = &pb.ReqDrivers{Verified: &pb.ReqDrivers_NotVerified{NotVerified: false}}
+	} else {
+		req = &pb.ReqDrivers{}
 	}
 
 	res, err := a.PBDriver.GetDrivers(c.Context(), req)
