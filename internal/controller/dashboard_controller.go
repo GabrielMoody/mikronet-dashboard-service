@@ -38,7 +38,7 @@ func (a *DashboardControllerImpl) DeleteUser(c *fiber.Ctx) error {
 	ctx := c.Context()
 	id := c.Params("id")
 
-	res, err := a.PBUser.DeleteUser(ctx, &pb.GetByIDRequest{
+	_, err := a.PBUser.DeleteUser(ctx, &pb.GetByIDRequest{
 		Id: id,
 	})
 
@@ -50,8 +50,8 @@ func (a *DashboardControllerImpl) DeleteUser(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"status": "Success",
-		"data":   res,
+		"status":  "Success",
+		"message": "Berhasil menghapus akun!",
 	})
 }
 
@@ -59,7 +59,7 @@ func (a *DashboardControllerImpl) DeleteDriver(c *fiber.Ctx) error {
 	ctx := c.Context()
 	id := c.Params("id")
 
-	res, err := a.PBDriver.DeleteDriver(ctx, &pb.ReqByID{
+	_, err := a.PBDriver.DeleteDriver(ctx, &pb.ReqByID{
 		Id: id,
 	})
 
@@ -71,8 +71,8 @@ func (a *DashboardControllerImpl) DeleteDriver(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"status": "Success",
-		"data":   res,
+		"status":  "Success",
+		"message": "Berhasil menghapus akun!",
 	})
 }
 
@@ -141,7 +141,7 @@ func (a *DashboardControllerImpl) UnblockAccount(c *fiber.Ctx) error {
 	ctx := c.Context()
 	accountId := c.Params("id")
 
-	res, err := a.DashboardService.UnblockAccount(ctx, accountId)
+	_, err := a.DashboardService.UnblockAccount(ctx, accountId)
 
 	if err != nil {
 		return c.Status(err.Code).JSON(fiber.Map{
@@ -152,7 +152,7 @@ func (a *DashboardControllerImpl) UnblockAccount(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status": "Success",
-		"data":   res,
+		"data":   "Berhasil membuka blokir akun!",
 	})
 }
 
@@ -221,7 +221,7 @@ func (a *DashboardControllerImpl) BlockAccount(c *fiber.Ctx) error {
 	ctx := c.Context()
 	accountId := c.Params("id")
 
-	res, err := a.DashboardService.BlockAccount(ctx, accountId)
+	_, err := a.DashboardService.BlockAccount(ctx, accountId)
 
 	if err != nil {
 		return c.Status(err.Code).JSON(fiber.Map{
@@ -231,8 +231,8 @@ func (a *DashboardControllerImpl) BlockAccount(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"status": "Success",
-		"data":   res,
+		"status":  "Success",
+		"message": "Berhasil memblokir akun!",
 	})
 }
 
