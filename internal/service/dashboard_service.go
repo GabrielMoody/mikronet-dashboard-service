@@ -12,25 +12,37 @@ import (
 )
 
 type DashboardService interface {
-	GetBusinessOwners(c context.Context) (res []models.OwnerDetails, err *helper.ErrorStruct)
-	GetBusinessOwner(c context.Context, id string) (res models.OwnerDetails, err *helper.ErrorStruct)
-	GetBlockedBusinessOwners(c context.Context, role string) (res []models.OwnerDetails, err *helper.ErrorStruct)
-	GetUnverifiedBusinessOwners(c context.Context) (res []models.OwnerDetails, err *helper.ErrorStruct)
-	SetStatusVerified(c context.Context, id string) (res models.OwnerDetails, err *helper.ErrorStruct)
+	GetAllDrivers(c context.Context) (res []models.Drivers, err *helper.ErrorStruct)
+	GetAllPassengers(c context.Context) (res []models.Passengers, err *helper.ErrorStruct)
+	GetDriverById(c context.Context, id string) (res models.Drivers, err *helper.ErrorStruct)
+	GetPassengerById(c context.Context, id string) (res models.Passengers, err *helper.ErrorStruct)
+	GetAllReviews(c context.Context) (res []models.Reviews, err *helper.ErrorStruct)
+	GetAllBlockAccount(c context.Context) (res []models.BlockDriver, err *helper.ErrorStruct)
+	GetReviewById(c context.Context, id string) (res models.Reviews, err *helper.ErrorStruct)
 	BlockAccount(c context.Context, accountId string) (res models.BlockedAccount, err *helper.ErrorStruct)
 	UnblockAccount(c context.Context, accountId string) (res string, err *helper.ErrorStruct)
+	SetDriverStatusVerified(c context.Context, id string) (res string, err *helper.ErrorStruct)
+	DeleteDriver(c context.Context, id string) (res string, err *helper.ErrorStruct)
 }
 
 type DashboardServiceImpl struct {
 	DashboardRepo repository.DashboardRepo
 }
 
-func (a *DashboardServiceImpl) GetUnverifiedBusinessOwners(c context.Context) (res []models.OwnerDetails, err *helper.ErrorStruct) {
-	resRepo, errRepo := a.DashboardRepo.GetUnverifiedBusinessOwners(c)
+func (a *DashboardServiceImpl) DeleteDriver(c context.Context, id string) (res string, err *helper.ErrorStruct) {
+	resRepo, errRepo := a.DashboardRepo.DeleteDriver(c, id)
 
 	if errRepo != nil {
+		var code int
+		switch {
+		case errors.Is(errRepo, helper.ErrNotFound):
+			code = http.StatusNotFound
+		default:
+			code = http.StatusInternalServerError
+		}
+
 		return res, &helper.ErrorStruct{
-			Code: http.StatusInternalServerError,
+			Code: code,
 			Err:  errRepo,
 		}
 	}
@@ -38,17 +50,167 @@ func (a *DashboardServiceImpl) GetUnverifiedBusinessOwners(c context.Context) (r
 	return resRepo, nil
 }
 
-func (a *DashboardServiceImpl) SetStatusVerified(c context.Context, id string) (res models.OwnerDetails, err *helper.ErrorStruct) {
-	data := models.OwnerDetails{
-		ID:       id,
-		Verified: true,
-	}
-
-	resRepo, errRepo := a.DashboardRepo.SetOwnerVerified(c, data)
+func (a *DashboardServiceImpl) SetDriverStatusVerified(c context.Context, id string) (res string, err *helper.ErrorStruct) {
+	resRepo, errRepo := a.DashboardRepo.SetDriverStatusVerified(c, id)
 
 	if errRepo != nil {
+		var code int
+		switch {
+		case errors.Is(errRepo, helper.ErrNotFound):
+			code = http.StatusNotFound
+		default:
+			code = http.StatusInternalServerError
+		}
+
 		return res, &helper.ErrorStruct{
-			Code: http.StatusInternalServerError,
+			Code: code,
+			Err:  errRepo,
+		}
+	}
+
+	return resRepo, nil
+}
+
+func (a *DashboardServiceImpl) GetAllBlockAccount(c context.Context) (res []models.BlockDriver, err *helper.ErrorStruct) {
+	resRepo, errRepo := a.DashboardRepo.GetAllBlcokAccount(c)
+
+	if errRepo != nil {
+		var code int
+		switch {
+		case errors.Is(errRepo, helper.ErrNotFound):
+			code = http.StatusNotFound
+		default:
+			code = http.StatusInternalServerError
+		}
+
+		return res, &helper.ErrorStruct{
+			Code: code,
+			Err:  errRepo,
+		}
+	}
+
+	return resRepo, nil
+}
+
+func (a *DashboardServiceImpl) GetAllReviews(c context.Context) (res []models.Reviews, err *helper.ErrorStruct) {
+	resRepo, errRepo := a.DashboardRepo.GetAllReview(c)
+
+	if errRepo != nil {
+		var code int
+		switch {
+		case errors.Is(errRepo, helper.ErrNotFound):
+			code = http.StatusNotFound
+		default:
+			code = http.StatusInternalServerError
+		}
+
+		return res, &helper.ErrorStruct{
+			Code: code,
+			Err:  errRepo,
+		}
+	}
+
+	return resRepo, nil
+}
+
+func (a *DashboardServiceImpl) GetReviewById(c context.Context, id string) (res models.Reviews, err *helper.ErrorStruct) {
+	resRepo, errRepo := a.DashboardRepo.GetReviewById(c, id)
+
+	if errRepo != nil {
+		var code int
+		switch {
+		case errors.Is(errRepo, helper.ErrNotFound):
+			code = http.StatusNotFound
+		default:
+			code = http.StatusInternalServerError
+		}
+
+		return res, &helper.ErrorStruct{
+			Code: code,
+			Err:  errRepo,
+		}
+	}
+
+	return resRepo, nil
+}
+
+func (a *DashboardServiceImpl) GetAllDrivers(c context.Context) (res []models.Drivers, err *helper.ErrorStruct) {
+	resRepo, errRepo := a.DashboardRepo.GetAllDrivers(c)
+
+	if errRepo != nil {
+		var code int
+		switch {
+		case errors.Is(errRepo, helper.ErrNotFound):
+			code = http.StatusNotFound
+		default:
+			code = http.StatusInternalServerError
+		}
+
+		return res, &helper.ErrorStruct{
+			Code: code,
+			Err:  errRepo,
+		}
+	}
+
+	return resRepo, nil
+}
+
+func (a *DashboardServiceImpl) GetAllPassengers(c context.Context) (res []models.Passengers, err *helper.ErrorStruct) {
+	resRepo, errRepo := a.DashboardRepo.GetAllPassengers(c)
+
+	if errRepo != nil {
+		var code int
+		switch {
+		case errors.Is(errRepo, helper.ErrNotFound):
+			code = http.StatusNotFound
+		default:
+			code = http.StatusInternalServerError
+		}
+
+		return res, &helper.ErrorStruct{
+			Code: code,
+			Err:  errRepo,
+		}
+	}
+
+	return resRepo, nil
+}
+
+func (a *DashboardServiceImpl) GetDriverById(c context.Context, id string) (res models.Drivers, err *helper.ErrorStruct) {
+	resRepo, errRepo := a.DashboardRepo.GetDriverByID(c, id)
+
+	if errRepo != nil {
+		var code int
+		switch {
+		case errors.Is(errRepo, helper.ErrNotFound):
+			code = http.StatusNotFound
+		default:
+			code = http.StatusInternalServerError
+		}
+
+		return res, &helper.ErrorStruct{
+			Code: code,
+			Err:  errRepo,
+		}
+	}
+
+	return resRepo, nil
+}
+
+func (a *DashboardServiceImpl) GetPassengerById(c context.Context, id string) (res models.Passengers, err *helper.ErrorStruct) {
+	resRepo, errRepo := a.DashboardRepo.GetPassengerByID(c, id)
+
+	if errRepo != nil {
+		var code int
+		switch {
+		case errors.Is(errRepo, helper.ErrNotFound):
+			code = http.StatusNotFound
+		default:
+			code = http.StatusInternalServerError
+		}
+
+		return res, &helper.ErrorStruct{
+			Code: code,
 			Err:  errRepo,
 		}
 	}
@@ -77,30 +239,9 @@ func (a *DashboardServiceImpl) UnblockAccount(c context.Context, accountId strin
 	return resRepo, nil
 }
 
-func (a *DashboardServiceImpl) GetBusinessOwner(c context.Context, id string) (res models.OwnerDetails, err *helper.ErrorStruct) {
-	resRepo, errRepo := a.DashboardRepo.GetBusinessOwner(c, id)
-
-	if errRepo != nil {
-		var code int
-		switch {
-		case errors.Is(errRepo, helper.ErrNotFound):
-			code = http.StatusNotFound
-		default:
-			code = http.StatusInternalServerError
-		}
-
-		return res, &helper.ErrorStruct{
-			Code: code,
-			Err:  errRepo,
-		}
-	}
-
-	return resRepo, nil
-}
-
 func (a *DashboardServiceImpl) BlockAccount(c context.Context, accountId string) (res models.BlockedAccount, err *helper.ErrorStruct) {
 	data := models.BlockedAccount{
-		AccountID: accountId,
+		UserID: accountId,
 	}
 
 	resRepo, errRepo := a.DashboardRepo.BlockAccount(c, data)
@@ -118,46 +259,6 @@ func (a *DashboardServiceImpl) BlockAccount(c context.Context, accountId string)
 
 		return res, &helper.ErrorStruct{
 			Code: code,
-			Err:  errRepo,
-		}
-	}
-
-	return resRepo, nil
-}
-
-func (a *DashboardServiceImpl) GetBlockedBusinessOwners(c context.Context, role string) (res []models.OwnerDetails, err *helper.ErrorStruct) {
-	if (role != "driver") && (role != "owner") && (role != "") {
-		return res, &helper.ErrorStruct{
-			Code: http.StatusInternalServerError,
-			Err:  errors.New("invalid role"),
-		}
-	}
-
-	var resRepo []models.OwnerDetails
-	var errRepo error
-
-	if role == "" {
-		resRepo, errRepo = a.DashboardRepo.GetAllBlockedAccount(c)
-	} else {
-		resRepo, errRepo = a.DashboardRepo.GetBlockedAccountRole(c, role)
-	}
-
-	if errRepo != nil {
-		return res, &helper.ErrorStruct{
-			Code: http.StatusInternalServerError,
-			Err:  errRepo,
-		}
-	}
-
-	return resRepo, nil
-}
-
-func (a *DashboardServiceImpl) GetBusinessOwners(c context.Context) (res []models.OwnerDetails, err *helper.ErrorStruct) {
-	resRepo, errRepo := a.DashboardRepo.GetBusinessOwners(c)
-
-	if errRepo != nil {
-		return res, &helper.ErrorStruct{
-			Code: http.StatusInternalServerError,
 			Err:  errRepo,
 		}
 	}
