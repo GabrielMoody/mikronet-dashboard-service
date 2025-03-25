@@ -6,6 +6,7 @@ import (
 
 	"net/http"
 
+	"github.com/GabrielMoody/mikronet-dashboard-service/internal/dto"
 	"github.com/GabrielMoody/mikronet-dashboard-service/internal/helper"
 	"github.com/GabrielMoody/mikronet-dashboard-service/internal/models"
 	"github.com/GabrielMoody/mikronet-dashboard-service/internal/repository"
@@ -23,10 +24,34 @@ type DashboardService interface {
 	UnblockAccount(c context.Context, accountId string) (res string, err *helper.ErrorStruct)
 	SetDriverStatusVerified(c context.Context, id string) (res string, err *helper.ErrorStruct)
 	DeleteDriver(c context.Context, id string) (res string, err *helper.ErrorStruct)
+	AddRoute(c context.Context, data dto.AddRoute) (res models.Route, err *helper.ErrorStruct)
 }
 
 type DashboardServiceImpl struct {
 	DashboardRepo repository.DashboardRepo
+}
+
+func (a *DashboardServiceImpl) AddRoute(c context.Context, data dto.AddRoute) (res models.Route, err *helper.ErrorStruct) {
+	resRepo, errRepo := a.DashboardRepo.AddRoute(c, models.Route{
+		RouteName: data.RouteName,
+	})
+
+	if errRepo != nil {
+		var code int
+		switch {
+		case errors.Is(errRepo, helper.ErrNotFound):
+			code = http.StatusNotFound
+		default:
+			code = http.StatusInternalServerError
+		}
+
+		return res, &helper.ErrorStruct{
+			Code: code,
+			Err:  errRepo,
+		}
+	}
+
+	return resRepo, nil
 }
 
 func (a *DashboardServiceImpl) DeleteDriver(c context.Context, id string) (res string, err *helper.ErrorStruct) {

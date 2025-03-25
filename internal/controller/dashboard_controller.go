@@ -20,10 +20,37 @@ type DashboardController interface {
 	GetReviews(c *fiber.Ctx) error
 	GetReviewByID(c *fiber.Ctx) error
 	GetAllBlockAccount(c *fiber.Ctx) error
+	AddRoute(c *fiber.Ctx) error
 }
 
 type DashboardControllerImpl struct {
 	DashboardService service.DashboardService
+}
+
+func (a *DashboardControllerImpl) AddRoute(c *fiber.Ctx) error {
+	ctx := c.Context()
+
+	var body dto.AddRoute
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status": "error",
+			"errors": err,
+		})
+	}
+
+	res, err := a.DashboardService.AddRoute(ctx, body)
+
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status": "error",
+			"errors": err,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status": "Success",
+		"data":   res,
+	})
 }
 
 func (a *DashboardControllerImpl) GetAllBlockAccount(c *fiber.Ctx) error {

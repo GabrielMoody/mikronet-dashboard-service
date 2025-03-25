@@ -29,6 +29,7 @@ type DriverDetails struct {
 	AvailableSeats int
 	QrisData       string
 	ProfilePicture string `gorm:"type:varchar(255)"`
+	KTP            string `gorm:"type:varchar(255)"`
 }
 
 type PassengerDetails struct {

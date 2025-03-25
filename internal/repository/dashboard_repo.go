@@ -23,10 +23,19 @@ type DashboardRepo interface {
 	GetAllBlcokAccount(c context.Context) ([]models.BlockDriver, error)
 	SetDriverStatusVerified(c context.Context, id string) (string, error)
 	DeleteDriver(c context.Context, id string) (string, error)
+	AddRoute(c context.Context, data models.Route) (models.Route, error)
 }
 
 type DashboardRepoImpl struct {
 	db *gorm.DB
+}
+
+func (a *DashboardRepoImpl) AddRoute(c context.Context, data models.Route) (res models.Route, err error) {
+	if err := a.db.WithContext(c).Create(&data).Error; err != nil {
+		return res, helper.ErrDatabase
+	}
+
+	return data, nil
 }
 
 func (a *DashboardRepoImpl) DeleteDriver(c context.Context, id string) (res string, err error) {
