@@ -113,8 +113,8 @@ func (a *DashboardRepoImpl) GetDriverByID(c context.Context, id string) (res mod
 }
 
 func (a *DashboardRepoImpl) GetPassengerByID(c context.Context, id string) (res models.Passengers, err error) {
-	if err := a.db.WithContext(c).Table("driver_details").
-		Select("driver_details.id as id, users.email, driver_details.name, driver_details.phone_number, driver_details.license_number, driver_details.sim, driver_details.verified, driver_details.profile_picture").
+	if err := a.db.WithContext(c).Table("passenger_details").
+		Select("passenger_details.id as id, users.email, passenger_details.name").
 		Joins("JOIN users ON users.id = passenger_details.id").
 		Scan(&res).Error; err != nil {
 		return res, helper.ErrDatabase
