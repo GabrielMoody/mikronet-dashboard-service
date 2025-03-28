@@ -81,7 +81,7 @@ func (a *DashboardRepoImpl) GetReviewById(c context.Context, id string) (res mod
 
 func (a *DashboardRepoImpl) GetAllDrivers(c context.Context) (res []models.Drivers, err error) {
 	if err := a.db.WithContext(c).Table("driver_details").
-		Select("driver_details.id as id, users.email, driver_details.name, driver_details.phone_number, driver_details.license_number, driver_details.sim, driver_details.verified, driver_details.profile_picture").
+		Select("driver_details.id as id, users.email, driver_details.name, driver_details.phone_number, driver_details.license_number, driver_details.sim, driver_details.verified, driver_details.profile_picture, driver_details.status as status").
 		Joins("JOIN users ON users.id = driver_details.id").
 		Scan(&res).Error; err != nil {
 		return res, helper.ErrDatabase

@@ -16,6 +16,7 @@ type Drivers struct {
 	SIM            string `json:"sim"`
 	Verified       bool   `json:"verified"`
 	ProfilePicture string `json:"profile_picture"`
+	Status         string `json:"status"`
 }
 
 type Passengers struct {
