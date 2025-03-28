@@ -178,9 +178,9 @@ func (a *DashboardServiceImpl) GetAllDrivers(c context.Context) (res []models.Dr
 		}
 	}
 
-	for _, v := range resRepo {
-		if v.ProfilePicture != "" {
-			v.ProfilePicture = os.Getenv("BASE_URL") + "/api/driver/images/" + v.ID
+	for i := range resRepo {
+		if resRepo[i].ProfilePicture != "" {
+			resRepo[i].ProfilePicture = os.Getenv("BASE_URL") + "/api/driver/images/" + resRepo[i].ID
 		}
 	}
 
