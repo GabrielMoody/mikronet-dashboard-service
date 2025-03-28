@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"os"
 
 	"net/http"
 
@@ -174,6 +175,12 @@ func (a *DashboardServiceImpl) GetAllDrivers(c context.Context) (res []models.Dr
 		return res, &helper.ErrorStruct{
 			Code: code,
 			Err:  errRepo,
+		}
+	}
+
+	for _, v := range resRepo {
+		if v.ProfilePicture != "" {
+			v.ProfilePicture = os.Getenv("BASE_URL") + "/api/driver/images/" + v.ID
 		}
 	}
 
