@@ -9,6 +9,8 @@ RUN cp /usr/share/zoneinfo/Asia/Singapore /etc/localtime && \
   echo "Asia/Singapore" > /etc/timezone
 
 FROM alpine
+RUN apk add --no-cache tzdata
+ENV TZ=Asia/Singapore
 WORKDIR /usr/bin
 COPY --from=build /go/bin .
 EXPOSE 8030

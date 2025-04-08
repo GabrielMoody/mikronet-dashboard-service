@@ -220,7 +220,7 @@ func (a *DashboardControllerImpl) GetDrivers(c *fiber.Ctx) error {
 		})
 	}
 
-	res, err := a.DashboardService.GetAllDrivers(ctx)
+	res, err := a.DashboardService.GetAllDrivers(ctx, q)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"status": "error",

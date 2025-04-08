@@ -11,7 +11,7 @@ import (
 )
 
 type DashboardRepo interface {
-	GetAllDrivers(c context.Context) ([]models.Drivers, error)
+	GetAllDrivers(c context.Context, verified *bool) ([]models.Drivers, error)
 	GetAllPassengers(c context.Context) ([]models.Passengers, error)
 	GetDriverByID(c context.Context, id string) (models.Drivers, error)
 	GetPassengerByID(c context.Context, id string) (models.Passengers, error)
@@ -79,12 +79,22 @@ func (a *DashboardRepoImpl) GetReviewById(c context.Context, id string) (res mod
 	return res, nil
 }
 
-func (a *DashboardRepoImpl) GetAllDrivers(c context.Context) (res []models.Drivers, err error) {
-	if err := a.db.WithContext(c).Table("driver_details").
-		Select("driver_details.id as id, users.email, driver_details.name, driver_details.phone_number, driver_details.license_number, driver_details.sim, driver_details.verified, driver_details.profile_picture, driver_details.status as status").
-		Joins("JOIN users ON users.id = driver_details.id").
-		Scan(&res).Error; err != nil {
-		return res, helper.ErrDatabase
+func (a *DashboardRepoImpl) GetAllDrivers(c context.Context, verified *bool) (res []models.Drivers, err error) {
+	if verified == nil {
+		if err := a.db.WithContext(c).Table("driver_details").
+			Select("driver_details.id as id, users.email, driver_details.name, driver_details.phone_number, driver_details.license_number, driver_details.sim, driver_details.verified, driver_details.profile_picture, driver_details.status as status").
+			Joins("JOIN users ON users.id = driver_details.id").
+			Scan(&res).Error; err != nil {
+			return res, helper.ErrDatabase
+		}
+	} else {
+		if err := a.db.WithContext(c).Table("driver_details").
+			Select("driver_details.id as id, users.email, driver_details.name, driver_details.phone_number, driver_details.license_number, driver_details.sim, driver_details.verified, driver_details.profile_picture, driver_details.status as status").
+			Joins("JOIN users ON users.id = driver_details.id").
+			Where("verified = ?", verified).
+			Scan(&res).Error; err != nil {
+			return res, helper.ErrDatabase
+		}
 	}
 
 	return res, nil

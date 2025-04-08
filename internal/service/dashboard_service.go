@@ -14,7 +14,7 @@ import (
 )
 
 type DashboardService interface {
-	GetAllDrivers(c context.Context) (res []models.Drivers, err *helper.ErrorStruct)
+	GetAllDrivers(c context.Context, q dto.GetDriverQuery) (res []models.Drivers, err *helper.ErrorStruct)
 	GetAllPassengers(c context.Context) (res []models.Passengers, err *helper.ErrorStruct)
 	GetDriverById(c context.Context, id string) (res models.Drivers, err *helper.ErrorStruct)
 	GetPassengerById(c context.Context, id string) (res models.Passengers, err *helper.ErrorStruct)
@@ -160,8 +160,8 @@ func (a *DashboardServiceImpl) GetReviewById(c context.Context, id string) (res 
 	return resRepo, nil
 }
 
-func (a *DashboardServiceImpl) GetAllDrivers(c context.Context) (res []models.Drivers, err *helper.ErrorStruct) {
-	resRepo, errRepo := a.DashboardRepo.GetAllDrivers(c)
+func (a *DashboardServiceImpl) GetAllDrivers(c context.Context, q dto.GetDriverQuery) (res []models.Drivers, err *helper.ErrorStruct) {
+	resRepo, errRepo := a.DashboardRepo.GetAllDrivers(c, q.Verified)
 
 	if errRepo != nil {
 		var code int
@@ -225,6 +225,8 @@ func (a *DashboardServiceImpl) GetDriverById(c context.Context, id string) (res 
 			Err:  errRepo,
 		}
 	}
+
+	resRepo.ProfilePicture = os.Getenv("BASE_URL") + "/api/driver/images/" + resRepo.ID
 
 	return resRepo, nil
 }
