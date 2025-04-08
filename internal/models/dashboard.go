@@ -72,11 +72,11 @@ type Review struct {
 }
 
 type Transaction struct {
-	ID          int       `gorm:"primaryKey"`
-	PassengerID string    `gorm:"type:varchar(255)"`
-	Passenger   User      `gorm:"foreignKey:PassengerID;references:ID;constraint:OnDelete:CASCADE"`
-	DriverID    string    `gorm:"type:varchar(255)"`
-	Driver      User      `gorm:"foreignKey:DriverID;references:ID;constraint:OnDelete:CASCADE"`
-	Amount      int       `gorm:"type:int"`
-	CreatedAt   time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP"`
+	ID          int        `gorm:"primaryKey"`
+	PassengerID string     `gorm:"type:varchar(255)"`
+	Passenger   User       `gorm:"foreignKey:PassengerID;references:ID;constraint:OnDelete:CASCADE"`
+	DriverID    string     `gorm:"type:varchar(255)"`
+	Driver      User       `gorm:"foreignKey:DriverID;references:ID;constraint:OnDelete:CASCADE"`
+	Amount      int        `gorm:"type:int"`
+	CreatedAt   *time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP"`
 }

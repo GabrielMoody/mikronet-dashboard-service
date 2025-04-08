@@ -3,7 +3,9 @@ package repository
 import (
 	"context"
 	"errors"
+	"time"
 
+	"github.com/GabrielMoody/mikronet-dashboard-service/internal/dto"
 	"github.com/GabrielMoody/mikronet-dashboard-service/internal/helper"
 	"github.com/GabrielMoody/mikronet-dashboard-service/internal/models"
 	"github.com/go-sql-driver/mysql"
@@ -24,10 +26,50 @@ type DashboardRepo interface {
 	SetDriverStatusVerified(c context.Context, id string) (string, error)
 	DeleteDriver(c context.Context, id string) (string, error)
 	AddRoute(c context.Context, data models.Route) (models.Route, error)
+	MonthlyReport(c context.Context, month int) (dto.Report, error)
 }
 
 type DashboardRepoImpl struct {
 	db *gorm.DB
+}
+
+func (a *DashboardRepoImpl) MonthlyReport(c context.Context, month int) (res dto.Report, err error) {
+	monthAgo := time.Now().AddDate(0, month*-1, 0)
+	trips := []dto.RoutesReport{}
+	common := dto.CommonReport{}
+
+	sql := `
+		WITH total_passenger AS (
+    SELECT count(id) as total_passenger from passenger_details
+    ), 
+    total_driver AS (
+        SELECT count(id) as total_driver from driver_details
+    )
+		SELECT COUNT(id) as total_trip, 
+		SUM(amount) as total_revenue,
+		(SELECT total_passenger FROM total_passenger) as total_passenger,
+		(SELECT total_driver FROM total_driver) as total_driver FROM transactions;
+	`
+
+	if err := a.db.WithContext(c).Raw(sql).Scan(&common).Error; err != nil {
+		return res, helper.ErrDatabase
+	}
+
+	if err := a.db.WithContext(c).Table("routes as r").
+		Select("r.route_name as route, count(r.id) as total, sum(t.amount) as revenue").
+		Joins("JOIN driver_details d on d.route_id = r.id").
+		Joins("JOIN transactions t ON t.driver_id = d.id").
+		Where("t.created_at >= ?", monthAgo).
+		Group("r.id").
+		Order("r.id").
+		Scan(&trips).Error; err != nil {
+		return res, helper.ErrDatabase
+	}
+
+	return dto.Report{
+		Common: common,
+		Trips:  trips,
+	}, nil
 }
 
 func (a *DashboardRepoImpl) AddRoute(c context.Context, data models.Route) (res models.Route, err error) {
