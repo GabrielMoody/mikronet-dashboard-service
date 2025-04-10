@@ -19,6 +19,8 @@ type DashboardRepo interface {
 	GetPassengerByID(c context.Context, id string) (models.Passengers, error)
 	GetAllReview(c context.Context) ([]models.Reviews, error)
 	GetReviewById(c context.Context, id string) (models.Reviews, error)
+	GetAllTripHistories(c context.Context) ([]models.Histories, error)
+	EditAmountRoute(c context.Context, data models.Route, id string) (models.Route, error)
 	BlockAccount(c context.Context, data models.BlockedAccount) (models.BlockedAccount, error)
 	UnblockAccount(c context.Context, id string) (string, error)
 	IsBlocked(c context.Context, id string) (bool, error)
@@ -31,6 +33,27 @@ type DashboardRepo interface {
 
 type DashboardRepoImpl struct {
 	db *gorm.DB
+}
+
+func (a *DashboardRepoImpl) GetAllTripHistories(c context.Context) (res []models.Histories, err error) {
+	if err := a.db.WithContext(c).Table("transactions as t").
+		Select("t.id as id, p.name as passenger_name, d.name as driver_name, t.amount as amount, r.route_name as route, t.created_at").
+		Joins("JOIN passenger_details p on p.id = t.passenger_id").
+		Joins("JOIN driver_details d on d.id = t.driver_id").
+		Joins("JOIN routes r on r.id = d.route_id").
+		Scan(&res).Error; err != nil {
+		return nil, helper.ErrDatabase
+	}
+
+	return res, nil
+}
+
+func (a *DashboardRepoImpl) EditAmountRoute(c context.Context, data models.Route, id string) (res models.Route, err error) {
+	if err := a.db.WithContext(c).Model(&res).Where("id = ?", id).Update("amount", data.Amount).Error; err != nil {
+		return res, helper.ErrDatabase
+	}
+
+	return data, nil
 }
 
 func (a *DashboardRepoImpl) MonthlyReport(c context.Context, month int) (res dto.Report, err error) {
@@ -123,9 +146,9 @@ func (a *DashboardRepoImpl) GetReviewById(c context.Context, id string) (res mod
 
 func (a *DashboardRepoImpl) GetAllDrivers(c context.Context, verified *bool) (res []models.Drivers, err error) {
 	if verified == nil {
-		if err := a.db.WithContext(c).Table("driver_details").
-			Select("driver_details.id as id, users.email, driver_details.name, driver_details.phone_number, driver_details.license_number, driver_details.sim, driver_details.verified, driver_details.profile_picture, driver_details.status as status").
-			Joins("JOIN users ON users.id = driver_details.id").
+		if err := a.db.WithContext(c).Table("driver_details as d").
+			Select("d.id as id, u.email, d.name, d.phone_number, d.license_number, d.sim, d.verified, d.profile_picture, d.ktp, d.status as status").
+			Joins("JOIN users u ON u.id = d.id").
 			Scan(&res).Error; err != nil {
 			return res, helper.ErrDatabase
 		}
@@ -144,7 +167,7 @@ func (a *DashboardRepoImpl) GetAllDrivers(c context.Context, verified *bool) (re
 
 func (a *DashboardRepoImpl) GetAllPassengers(c context.Context) (res []models.Passengers, err error) {
 	if err := a.db.WithContext(c).Table("passenger_details").
-		Select("passenger_details.id as id, users.email, passenger_details.name").
+		Select("passenger_details.id as id, users.email, passenger_details.name, passenger_details.date_of_birth").
 		Joins("JOIN users ON users.id = passenger_details.id").
 		Scan(&res).Error; err != nil {
 		return res, helper.ErrDatabase
@@ -154,9 +177,9 @@ func (a *DashboardRepoImpl) GetAllPassengers(c context.Context) (res []models.Pa
 }
 
 func (a *DashboardRepoImpl) GetDriverByID(c context.Context, id string) (res models.Drivers, err error) {
-	if err := a.db.WithContext(c).Table("driver_details").
-		Select("driver_details.id as id, users.email, driver_details.name, driver_details.phone_number, driver_details.license_number, driver_details.sim, driver_details.verified, driver_details.profile_picture").
-		Joins("JOIN users ON users.id = driver_details.id").
+	if err := a.db.WithContext(c).Table("driver_details as d").
+		Select("d.id as id, u.email, d.name, d.phone_number, d.license_number, d.sim, d.verified, d.profile_picture, d.ktp").
+		Joins("JOIN users u ON u.id = d.id").
 		Scan(&res).Error; err != nil {
 		return res, helper.ErrDatabase
 	}

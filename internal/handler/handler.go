@@ -32,6 +32,11 @@ func DashboardHandler(r fiber.Router, db *gorm.DB) {
 	api.Get("/reviews/:id", controllerDashboard.GetReviewByID)
 
 	api.Post("/route", middleware.ValidateDashboardRole, controllerDashboard.AddRoute)
+	api.Put("/route/:id", middleware.ValidateDashboardRole, controllerDashboard.EditAmountRoute)
+
+	api.Get("/histories", controllerDashboard.GetAllTripHistories)
+
+	api.Get("/ktp/:id", middleware.ValidateDashboardRole, controllerDashboard.GetKTP)
 
 	api.Get("/reports", controllerDashboard.MonthlyReport)
 }

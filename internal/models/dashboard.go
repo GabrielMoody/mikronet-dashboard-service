@@ -33,8 +33,9 @@ type DriverDetails struct {
 }
 
 type PassengerDetails struct {
-	ID   string `gorm:"primaryKey;type:varchar(255)"`
-	Name string `gorm:"type:varchar(255)"`
+	ID          string    `gorm:"primaryKey;type:varchar(255)"`
+	Name        string    `gorm:"type:varchar(255)"`
+	DateOfBirth time.Time `gorm:"type:date"`
 }
 
 type Admin struct {
@@ -58,6 +59,7 @@ type BlockedAccount struct {
 type Route struct {
 	ID        uint   `gorm:"primaryKey"`
 	RouteName string `gorm:"type:varchar(255)"`
+	Amount    int    `gorm:"type:int"`
 }
 
 type Review struct {

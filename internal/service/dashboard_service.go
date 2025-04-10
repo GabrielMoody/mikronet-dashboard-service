@@ -21,16 +21,94 @@ type DashboardService interface {
 	GetAllReviews(c context.Context) (res []models.Reviews, err *helper.ErrorStruct)
 	GetAllBlockAccount(c context.Context) (res []models.BlockDriver, err *helper.ErrorStruct)
 	GetReviewById(c context.Context, id string) (res models.Reviews, err *helper.ErrorStruct)
+	GetAllHistories(c context.Context) (res []models.Histories, err *helper.ErrorStruct)
+	EditAmountRoute(c context.Context, data dto.EditAmount, id string) (res models.Route, err *helper.ErrorStruct)
 	BlockAccount(c context.Context, accountId string) (res models.BlockedAccount, err *helper.ErrorStruct)
 	UnblockAccount(c context.Context, accountId string) (res string, err *helper.ErrorStruct)
 	SetDriverStatusVerified(c context.Context, id string) (res string, err *helper.ErrorStruct)
 	DeleteDriver(c context.Context, id string) (res string, err *helper.ErrorStruct)
 	AddRoute(c context.Context, data dto.AddRoute) (res models.Route, err *helper.ErrorStruct)
 	MonthlyReport(c context.Context, query dto.MonthReport) (res dto.Report, err *helper.ErrorStruct)
+	GetImage(c context.Context, id string) (res string, err *helper.ErrorStruct)
 }
 
 type DashboardServiceImpl struct {
 	DashboardRepo repository.DashboardRepo
+}
+
+func (a *DashboardServiceImpl) GetImage(c context.Context, id string) (res string, err *helper.ErrorStruct) {
+	resRepo, errRepo := a.DashboardRepo.GetDriverByID(c, id)
+
+	if errRepo != nil {
+		var code int
+
+		switch {
+		case errors.Is(errRepo, helper.ErrNotFound):
+			code = http.StatusNotFound
+		default:
+			code = http.StatusInternalServerError
+		}
+
+		return res, &helper.ErrorStruct{
+			Err:  errRepo,
+			Code: code,
+		}
+	}
+
+	if resRepo.KTP == "" {
+		return res, &helper.ErrorStruct{
+			Err:  errors.New("KTP not found"),
+			Code: http.StatusNotFound,
+		}
+	}
+
+	return resRepo.KTP, nil
+}
+
+func (a *DashboardServiceImpl) GetAllHistories(c context.Context) (res []models.Histories, err *helper.ErrorStruct) {
+	resRepo, errRepo := a.DashboardRepo.GetAllTripHistories(c)
+
+	if errRepo != nil {
+		var code int
+		switch {
+		case errors.Is(errRepo, helper.ErrNotFound):
+			code = http.StatusNotFound
+		default:
+			code = http.StatusInternalServerError
+		}
+
+		return res, &helper.ErrorStruct{
+			Code: code,
+			Err:  errRepo,
+		}
+	}
+
+	return resRepo, nil
+}
+
+func (a *DashboardServiceImpl) EditAmountRoute(c context.Context, data dto.EditAmount, id string) (res models.Route, err *helper.ErrorStruct) {
+	route := models.Route{
+		Amount: data.Amount,
+	}
+
+	resRepo, errRepo := a.DashboardRepo.EditAmountRoute(c, route, id)
+
+	if errRepo != nil {
+		var code int
+		switch {
+		case errors.Is(errRepo, helper.ErrNotFound):
+			code = http.StatusNotFound
+		default:
+			code = http.StatusInternalServerError
+		}
+
+		return res, &helper.ErrorStruct{
+			Code: code,
+			Err:  errRepo,
+		}
+	}
+
+	return resRepo, nil
 }
 
 func (a *DashboardServiceImpl) MonthlyReport(c context.Context, query dto.MonthReport) (res dto.Report, err *helper.ErrorStruct) {
@@ -203,6 +281,10 @@ func (a *DashboardServiceImpl) GetAllDrivers(c context.Context, q dto.GetDriverQ
 	for i := range resRepo {
 		if resRepo[i].ProfilePicture != "" {
 			resRepo[i].ProfilePicture = os.Getenv("BASE_URL") + "/api/driver/images/" + resRepo[i].ID
+		}
+
+		if resRepo[i].KTP != "" {
+			resRepo[i].KTP = os.Getenv("BASE_URL") + "/api/dashboard/ktp/" + resRepo[i].ID
 		}
 	}
 

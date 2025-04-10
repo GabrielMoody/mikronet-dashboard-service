@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/GabrielMoody/mikronet-dashboard-service/internal/dto"
 	"github.com/GabrielMoody/mikronet-dashboard-service/internal/service"
@@ -14,6 +15,8 @@ type DashboardController interface {
 	GetUserDetails(c *fiber.Ctx) error
 	GetDrivers(c *fiber.Ctx) error
 	GetDriverDetails(c *fiber.Ctx) error
+	GetAllTripHistories(c *fiber.Ctx) error
+	EditAmountRoute(c *fiber.Ctx) error
 	DeleteDriver(c *fiber.Ctx) error
 	BlockAccount(c *fiber.Ctx) error
 	UnblockAccount(c *fiber.Ctx) error
@@ -22,10 +25,85 @@ type DashboardController interface {
 	GetAllBlockAccount(c *fiber.Ctx) error
 	AddRoute(c *fiber.Ctx) error
 	MonthlyReport(c *fiber.Ctx) error
+	GetKTP(c *fiber.Ctx) error
 }
 
 type DashboardControllerImpl struct {
 	DashboardService service.DashboardService
+}
+
+func (a *DashboardControllerImpl) GetKTP(c *fiber.Ctx) error {
+	ctx := c.Context()
+	id := c.Params("id")
+
+	res, err := a.DashboardService.GetImage(ctx, id)
+
+	if err != nil {
+		return c.Status(err.Code).JSON(fiber.Map{
+			"status": "error",
+			"errors": err,
+		})
+	}
+
+	img, errI := os.ReadFile(res)
+
+	if errI != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"status": "error",
+			"errors": errI,
+		})
+	}
+
+	ext := http.DetectContentType(img)
+
+	c.Response().Header.Set("Content-Type", ext)
+
+	return c.Status(fiber.StatusOK).Send(img)
+}
+
+func (a *DashboardControllerImpl) GetAllTripHistories(c *fiber.Ctx) error {
+	ctx := c.Context()
+
+	res, err := a.DashboardService.GetAllHistories(ctx)
+
+	if err != nil {
+		return c.Status(err.Code).JSON(fiber.Map{
+			"status": "error",
+			"errors": err,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status": "Success",
+		"data":   res,
+	})
+}
+
+func (a *DashboardControllerImpl) EditAmountRoute(c *fiber.Ctx) error {
+	ctx := c.Context()
+	id := c.Params("id")
+
+	var b dto.EditAmount
+	if err := c.BodyParser(&b); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status": "error",
+			"errors": err,
+		})
+	}
+
+	_, err := a.DashboardService.EditAmountRoute(ctx, b, id)
+
+	if err != nil {
+		return c.Status(err.Code).JSON(fiber.Map{
+			"status": "error",
+			"errors": err,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status": "Success",
+		"data":   "Berhasil memperbaharui harga!",
+	})
 }
 
 func (a *DashboardControllerImpl) MonthlyReport(c *fiber.Ctx) error {
@@ -42,7 +120,7 @@ func (a *DashboardControllerImpl) MonthlyReport(c *fiber.Ctx) error {
 	res, err := a.DashboardService.MonthlyReport(ctx, q)
 
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+		return c.Status(err.Code).JSON(fiber.Map{
 			"status": "error",
 			"errors": err,
 		})

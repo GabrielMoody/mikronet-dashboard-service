@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type BlockDriver struct {
 	ID             string `json:"id"`
 	Email          string `json:"email"`
@@ -16,13 +18,15 @@ type Drivers struct {
 	SIM            string `json:"sim"`
 	Verified       bool   `json:"verified"`
 	ProfilePicture string `json:"profile_picture"`
+	KTP            string `json:"ktp"`
 	Status         string `json:"status"`
 }
 
 type Passengers struct {
-	ID    string `json:"id"`
-	Email string `json:"email"`
-	Name  string `json:"name"`
+	ID          string    `json:"id"`
+	Email       string    `json:"email"`
+	Name        string    `json:"name"`
+	DateOfBirth time.Time `json:"date_of_birth"`
 }
 
 type Reviews struct {
@@ -31,4 +35,13 @@ type Reviews struct {
 	DriverName    string `json:"driver_name"`
 	Comment       string `json:"comment"`
 	Star          int    `json:"star"`
+}
+
+type Histories struct {
+	ID            int       `json:"id"`
+	PassengerName string    `json:"passenger_name"`
+	DriverName    string    `json:"driver_name"`
+	Amount        int       `json:"amount"`
+	Route         string    `json:"route"`
+	CreatedAt     time.Time `json:"created_at"`
 }

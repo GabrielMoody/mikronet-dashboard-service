@@ -29,4 +29,8 @@ type (
 		Common CommonReport   `json:"common"`
 		Trips  []RoutesReport `json:"trips"`
 	}
+
+	EditAmount struct {
+		Amount int `json:"amount"`
+	}
 )
