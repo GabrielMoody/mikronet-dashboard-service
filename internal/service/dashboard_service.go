@@ -27,6 +27,7 @@ type DashboardService interface {
 	UnblockAccount(c context.Context, accountId string) (res string, err *helper.ErrorStruct)
 	SetDriverStatusVerified(c context.Context, id string) (res string, err *helper.ErrorStruct)
 	DeleteDriver(c context.Context, id string) (res string, err *helper.ErrorStruct)
+	DeleteUser(c context.Context, id string) (res string, err *helper.ErrorStruct)
 	AddRoute(c context.Context, data dto.AddRoute) (res models.Route, err *helper.ErrorStruct)
 	MonthlyReport(c context.Context, query dto.MonthReport) (res dto.Report, err *helper.ErrorStruct)
 	GetImage(c context.Context, id string) (res string, err *helper.ErrorStruct)
@@ -157,6 +158,27 @@ func (a *DashboardServiceImpl) AddRoute(c context.Context, data dto.AddRoute) (r
 
 func (a *DashboardServiceImpl) DeleteDriver(c context.Context, id string) (res string, err *helper.ErrorStruct) {
 	resRepo, errRepo := a.DashboardRepo.DeleteDriver(c, id)
+
+	if errRepo != nil {
+		var code int
+		switch {
+		case errors.Is(errRepo, helper.ErrNotFound):
+			code = http.StatusNotFound
+		default:
+			code = http.StatusInternalServerError
+		}
+
+		return res, &helper.ErrorStruct{
+			Code: code,
+			Err:  errRepo,
+		}
+	}
+
+	return resRepo, nil
+}
+
+func (a *DashboardServiceImpl) DeleteUser(c context.Context, id string) (res string, err *helper.ErrorStruct) {
+	resRepo, errRepo := a.DashboardRepo.DeleteUser(c, id)
 
 	if errRepo != nil {
 		var code int

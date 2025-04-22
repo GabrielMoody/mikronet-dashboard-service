@@ -27,6 +27,7 @@ type DashboardRepo interface {
 	GetAllBlcokAccount(c context.Context) ([]models.BlockDriver, error)
 	SetDriverStatusVerified(c context.Context, id string) (string, error)
 	DeleteDriver(c context.Context, id string) (string, error)
+	DeleteUser(c context.Context, id string) (string, error)
 	AddRoute(c context.Context, data models.Route) (models.Route, error)
 	MonthlyReport(c context.Context, month int) (dto.Report, error)
 }
@@ -109,6 +110,14 @@ func (a *DashboardRepoImpl) DeleteDriver(c context.Context, id string) (res stri
 	}
 
 	return "Berhasil menghapus driver", nil
+}
+
+func (a *DashboardRepoImpl) DeleteUser(c context.Context, id string) (res string, err error) {
+	if err := a.db.WithContext(c).Delete(&models.PassengerDetails{}, "id = ?", id).Error; err != nil {
+		return res, helper.ErrDatabase
+	}
+
+	return "Berhasil menghapus passenger", nil
 }
 
 func (a *DashboardRepoImpl) SetDriverStatusVerified(c context.Context, id string) (res string, err error) {

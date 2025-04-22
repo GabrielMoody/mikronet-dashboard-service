@@ -18,6 +18,7 @@ type DashboardController interface {
 	GetAllTripHistories(c *fiber.Ctx) error
 	EditAmountRoute(c *fiber.Ctx) error
 	DeleteDriver(c *fiber.Ctx) error
+	DeleteUser(c *fiber.Ctx) error
 	BlockAccount(c *fiber.Ctx) error
 	UnblockAccount(c *fiber.Ctx) error
 	GetReviews(c *fiber.Ctx) error
@@ -184,6 +185,25 @@ func (a *DashboardControllerImpl) DeleteDriver(c *fiber.Ctx) error {
 	id := c.Params("id")
 
 	_, err := a.DashboardService.DeleteDriver(ctx, id)
+
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status": "error",
+			"errors": err,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status":  "Success",
+		"message": "Berhasil menghapus akun!",
+	})
+}
+
+func (a *DashboardControllerImpl) DeleteUser(c *fiber.Ctx) error {
+	ctx := c.Context()
+	id := c.Params("id")
+
+	_, err := a.DashboardService.DeleteUser(ctx, id)
 
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{

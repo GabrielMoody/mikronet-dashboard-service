@@ -18,6 +18,7 @@ func DashboardHandler(r fiber.Router, db *gorm.DB) {
 
 	api.Get("/users", controllerDashboard.GetUsers)
 	api.Get("/users/:id", controllerDashboard.GetUserDetails)
+	api.Delete("/users/:id", middleware.ValidateDashboardRole, controllerDashboard.DeleteUser)
 
 	api.Get("/drivers", controllerDashboard.GetDrivers)
 	api.Get("/drivers/:id", controllerDashboard.GetDriverDetails)
