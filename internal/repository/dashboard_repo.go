@@ -80,7 +80,7 @@ func (a *DashboardRepoImpl) MonthlyReport(c context.Context, month int) (res dto
 	}
 
 	if err := a.db.WithContext(c).Table("routes as r").
-		Select("r.id as route, count(r.id) as total, sum(t.amount) as revenue").
+		Select("CONCAT('Rute ', r.id) as route, count(r.id) as total, sum(t.amount) as revenue").
 		Joins("JOIN driver_details d on d.route_id = r.id").
 		Joins("JOIN transactions t ON t.driver_id = d.id").
 		Where("t.created_at >= ?", monthAgo).
