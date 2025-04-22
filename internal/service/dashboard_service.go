@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 
 	"net/http"
@@ -128,6 +129,10 @@ func (a *DashboardServiceImpl) MonthlyReport(c context.Context, query dto.MonthR
 			Code: code,
 			Err:  errRepo,
 		}
+	}
+
+	for _, v := range resRepo.Trips {
+		v.Route = fmt.Sprintf("Rute %s", v.Route)
 	}
 
 	return resRepo, nil
