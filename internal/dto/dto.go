@@ -7,6 +7,7 @@ type (
 
 	AddRoute struct {
 		RouteName string `json:"route_name"`
+		Price     int    `json:"price"`
 	}
 
 	MonthReport struct {

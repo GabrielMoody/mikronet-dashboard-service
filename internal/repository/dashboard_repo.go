@@ -30,10 +30,19 @@ type DashboardRepo interface {
 	DeleteUser(c context.Context, id string) (string, error)
 	AddRoute(c context.Context, data models.Route) (models.Route, error)
 	MonthlyReport(c context.Context, month int) (dto.Report, error)
+	GetRoutes(c context.Context) ([]models.Route, error)
 }
 
 type DashboardRepoImpl struct {
 	db *gorm.DB
+}
+
+func (a *DashboardRepoImpl) GetRoutes(c context.Context) (res []models.Route, err error) {
+	if err := a.db.WithContext(c).Find(&res).Error; err != nil {
+		return res, helper.ErrDatabase
+	}
+
+	return res, nil
 }
 
 func (a *DashboardRepoImpl) GetAllTripHistories(c context.Context) (res []models.Histories, err error) {

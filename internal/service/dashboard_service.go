@@ -31,10 +31,33 @@ type DashboardService interface {
 	AddRoute(c context.Context, data dto.AddRoute) (res models.Route, err *helper.ErrorStruct)
 	MonthlyReport(c context.Context, query dto.MonthReport) (res dto.Report, err *helper.ErrorStruct)
 	GetImage(c context.Context, id string) (res string, err *helper.ErrorStruct)
+	GetRoutes(c context.Context) (res []models.Route, err *helper.ErrorStruct)
 }
 
 type DashboardServiceImpl struct {
 	DashboardRepo repository.DashboardRepo
+}
+
+func (a *DashboardServiceImpl) GetRoutes(c context.Context) (res []models.Route, err *helper.ErrorStruct) {
+	resRepo, errRepo := a.DashboardRepo.GetRoutes(c)
+
+	if errRepo != nil {
+		var code int
+
+		switch {
+		case errors.Is(errRepo, helper.ErrNotFound):
+			code = http.StatusNotFound
+		default:
+			code = http.StatusInternalServerError
+		}
+
+		return res, &helper.ErrorStruct{
+			Err:  errRepo,
+			Code: code,
+		}
+	}
+
+	return resRepo, nil
 }
 
 func (a *DashboardServiceImpl) GetImage(c context.Context, id string) (res string, err *helper.ErrorStruct) {
@@ -136,6 +159,7 @@ func (a *DashboardServiceImpl) MonthlyReport(c context.Context, query dto.MonthR
 func (a *DashboardServiceImpl) AddRoute(c context.Context, data dto.AddRoute) (res models.Route, err *helper.ErrorStruct) {
 	resRepo, errRepo := a.DashboardRepo.AddRoute(c, models.Route{
 		RouteName: data.RouteName,
+		Amount:    data.Price,
 	})
 
 	if errRepo != nil {
