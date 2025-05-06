@@ -240,7 +240,7 @@ func (a *DashboardRepoImpl) IsBlocked(c context.Context, id string) (bool, error
 }
 
 func (a *DashboardRepoImpl) UnblockAccount(c context.Context, id string) (res string, err error) {
-	if err := a.db.WithContext(c).Delete(&models.BlockedAccount{}, "account_id = ?", id).Error; err != nil {
+	if err := a.db.WithContext(c).Delete(&models.BlockedAccount{}, "user_id = ?", id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return res, helper.ErrNotFound
 		}
