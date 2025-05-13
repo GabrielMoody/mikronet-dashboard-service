@@ -39,7 +39,7 @@ type DashboardRepoImpl struct {
 }
 
 func (a *DashboardRepoImpl) DeleteRoute(c context.Context, id string) (res string, err error) {
-	if err := a.db.WithContext(c).Delete(&res, "id = ?", id).Error; err != nil {
+	if err := a.db.WithContext(c).Delete(&models.Route{}, "id = ?", id).Error; err != nil {
 		return res, helper.ErrDatabase
 	}
 
