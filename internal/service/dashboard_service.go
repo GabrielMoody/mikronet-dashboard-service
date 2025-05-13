@@ -32,10 +32,33 @@ type DashboardService interface {
 	MonthlyReport(c context.Context, query dto.MonthReport) (res dto.Report, err *helper.ErrorStruct)
 	GetImage(c context.Context, id string) (res string, err *helper.ErrorStruct)
 	GetRoutes(c context.Context) (res []models.Route, err *helper.ErrorStruct)
+	DeleteRoute(c context.Context, id string) (res string, err *helper.ErrorStruct)
 }
 
 type DashboardServiceImpl struct {
 	DashboardRepo repository.DashboardRepo
+}
+
+func (a *DashboardServiceImpl) DeleteRoute(c context.Context, id string) (res string, err *helper.ErrorStruct) {
+	resRepo, errRepo := a.DashboardRepo.DeleteRoute(c, id)
+
+	if errRepo != nil {
+		var code int
+
+		switch {
+		case errors.Is(errRepo, helper.ErrNotFound):
+			code = http.StatusNotFound
+		default:
+			code = http.StatusInternalServerError
+		}
+
+		return res, &helper.ErrorStruct{
+			Err:  errRepo,
+			Code: code,
+		}
+	}
+
+	return resRepo, nil
 }
 
 func (a *DashboardServiceImpl) GetRoutes(c context.Context) (res []models.Route, err *helper.ErrorStruct) {

@@ -31,10 +31,19 @@ type DashboardRepo interface {
 	AddRoute(c context.Context, data models.Route) (models.Route, error)
 	MonthlyReport(c context.Context, month int) (dto.Report, error)
 	GetRoutes(c context.Context) ([]models.Route, error)
+	DeleteRoute(c context.Context, id string) (string, error)
 }
 
 type DashboardRepoImpl struct {
 	db *gorm.DB
+}
+
+func (a *DashboardRepoImpl) DeleteRoute(c context.Context, id string) (res string, err error) {
+	if err := a.db.WithContext(c).Delete(&res, "id = ?", id).Error; err != nil {
+		return res, helper.ErrDatabase
+	}
+
+	return "Berhasil menghapus rute!", nil
 }
 
 func (a *DashboardRepoImpl) GetRoutes(c context.Context) (res []models.Route, err error) {

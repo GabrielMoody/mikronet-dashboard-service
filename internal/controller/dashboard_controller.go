@@ -28,10 +28,31 @@ type DashboardController interface {
 	MonthlyReport(c *fiber.Ctx) error
 	GetKTP(c *fiber.Ctx) error
 	GetRoutes(c *fiber.Ctx) error
+	DeleteRoute(c *fiber.Ctx) error
 }
 
 type DashboardControllerImpl struct {
 	DashboardService service.DashboardService
+}
+
+func (a *DashboardControllerImpl) DeleteRoute(c *fiber.Ctx) error {
+	ctx := c.Context()
+
+	id := c.Params("id")
+
+	res, err := a.DashboardService.DeleteRoute(ctx, id)
+
+	if err != nil {
+		return c.Status(err.Code).JSON(fiber.Map{
+			"status": "error",
+			"errors": err,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status": "Success",
+		"data":   res,
+	})
 }
 
 func (a *DashboardControllerImpl) GetRoutes(c *fiber.Ctx) error {
