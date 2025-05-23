@@ -27,6 +27,7 @@ type Passengers struct {
 	Email       string    `json:"email"`
 	Name        string    `json:"name"`
 	DateOfBirth time.Time `json:"date_of_birth"`
+	Age         int       `json:"age"`
 }
 
 type Reviews struct {
