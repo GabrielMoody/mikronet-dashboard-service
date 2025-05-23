@@ -36,6 +36,7 @@ type PassengerDetails struct {
 	ID          string    `gorm:"primaryKey;type:varchar(255)"`
 	Name        string    `gorm:"type:varchar(255)"`
 	DateOfBirth time.Time `gorm:"type:date"`
+	Age         int
 }
 
 type Admin struct {
