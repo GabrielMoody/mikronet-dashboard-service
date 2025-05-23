@@ -194,7 +194,7 @@ func (a *DashboardRepoImpl) GetAllDrivers(c context.Context, verified *bool) (re
 
 func (a *DashboardRepoImpl) GetAllPassengers(c context.Context) (res []models.Passengers, err error) {
 	if err := a.db.WithContext(c).Table("passenger_details").
-		Select("passenger_details.id as id, users.email, passenger_details.name, passenger_details.date_of_birth").
+		Select("passenger_details.id as id, users.email, passenger_details.name, passenger_details.date_of_birth, passenger_details.age").
 		Joins("JOIN users ON users.id = passenger_details.id").
 		Scan(&res).Error; err != nil {
 		return res, helper.ErrDatabase
