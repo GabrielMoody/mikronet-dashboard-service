@@ -15,6 +15,7 @@ func DashboardHandler(r fiber.Router, db *gorm.DB) {
 	controllerDashboard := controller.NewDashboardController(serviceDashboard)
 
 	api := r.Group("/")
+	api.Get("/ktp/:id", controllerDashboard.GetKTP)
 
 	api.Get("/users", controllerDashboard.GetUsers)
 	api.Get("/users/:id", controllerDashboard.GetUserDetails)
@@ -38,8 +39,6 @@ func DashboardHandler(r fiber.Router, db *gorm.DB) {
 	api.Delete("/route/:id", middleware.ValidateDashboardRole, controllerDashboard.DeleteRoute)
 
 	api.Get("/histories", controllerDashboard.GetAllTripHistories)
-
-	api.Get("/ktp/:id", controllerDashboard.GetKTP)
 
 	api.Get("/reports", controllerDashboard.MonthlyReport)
 }
