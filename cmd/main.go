@@ -11,6 +11,15 @@ import (
 func main() {
 	app := fiber.New(fiber.Config{
 		StrictRouting: true,
+		ServerHeader:  "mikronet.systems",
+	})
+
+	app.Use(func(c *fiber.Ctx) error {
+		// c.Set("Content-Security-Policy", "default-src 'self'; img-src 'self'; script-src 'self'")
+		c.Set("X-Content-Type-Options", "nosniff")
+		c.Set("X-Frame-Options", "deny")
+		c.Set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
+		return c.Next()
 	})
 
 	app.Use(cors.New(cors.Config{
